@@ -32,3 +32,8 @@ O arquivo `mod-files/config/user_configs.json` aponta para estes repos:
 ## Observacao
 
 Essa pasta e para desenvolvimento/colaboracao no GitHub. Para distribuir para jogadores, use o instalador separado.
+
+## Workflow novo
+
+A partir de agora, use este repo como base oficial de desenvolvimento. Veja docs/WORKFLOW.md para aplicar arquivos no jogo, puxar mudancas do jogo para o repo e compilar EDOProMod.exe / ocgmod.dll.
+

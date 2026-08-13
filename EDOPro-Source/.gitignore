@@ -1,4 +1,4 @@
-# Ignore image thumbnail files created by windows
+﻿# Ignore image thumbnail files created by windows
 Thumbs.db
 # Ignore Finder view option files created by OS X
 .DS_Store
@@ -6,6 +6,8 @@ Thumbs.db
 Source/Core/Common/scmrev.h
 # Ignore files output by build
 /[Bb]uild*/
+!/build/
+!/build/**
 /[Bb]in/
 /obj/
 /irrKlang/

@@ -1,10 +1,15 @@
 ﻿
-/build/
 /bin/
 /obj/
 /.vs/
 /vcpkg/
 /irrlicht_extract/
+/EDOPro-Source/bin/
+/EDOPro-Source/obj/
+/EDOPro-Source/.vs/
+/EDOPro-Source/vcpkg/
+/EDOPro-Source/irrlicht_extract/
+/EDOPro-Source/irrlicht1-8-4-1.9-custom.zip
 *.exe
 *.dll
 *.pdb

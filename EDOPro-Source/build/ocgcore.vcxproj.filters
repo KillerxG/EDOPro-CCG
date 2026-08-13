@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="RNG">
+      <UniqueIdentifier>{0C1A880B-7823-887C-019F-9E7C6DA7937C}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\ocgcore\RNG\Xoshiro256.hpp">
+      <Filter>RNG</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ocgcore\bit.h" />
+    <ClInclude Include="..\ocgcore\card.h" />
+    <ClInclude Include="..\ocgcore\common.h" />
+    <ClInclude Include="..\ocgcore\containers_fwd.h" />
+    <ClInclude Include="..\ocgcore\duel.h" />
+    <ClInclude Include="..\ocgcore\effect.h" />
+    <ClInclude Include="..\ocgcore\effect_constants.h" />
+    <ClInclude Include="..\ocgcore\field.h" />
+    <ClInclude Include="..\ocgcore\function_array_helper.h" />
+    <ClInclude Include="..\ocgcore\group.h" />
+    <ClInclude Include="..\ocgcore\interpreter.h" />
+    <ClInclude Include="..\ocgcore\lua_obj.h" />
+    <ClInclude Include="..\ocgcore\ocgapi.h" />
+    <ClInclude Include="..\ocgcore\ocgapi_constants.h" />
+    <ClInclude Include="..\ocgcore\ocgapi_types.h" />
+    <ClInclude Include="..\ocgcore\processor_unit.h" />
+    <ClInclude Include="..\ocgcore\progressivebuffer.h" />
+    <ClInclude Include="..\ocgcore\scriptlib.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\ocgcore\card.cpp" />
+    <ClCompile Include="..\ocgcore\duel.cpp" />
+    <ClCompile Include="..\ocgcore\effect.cpp" />
+    <ClCompile Include="..\ocgcore\field.cpp" />
+    <ClCompile Include="..\ocgcore\interpreter.cpp" />
+    <ClCompile Include="..\ocgcore\libcard.cpp" />
+    <ClCompile Include="..\ocgcore\libdebug.cpp" />
+    <ClCompile Include="..\ocgcore\libduel.cpp" />
+    <ClCompile Include="..\ocgcore\libeffect.cpp" />
+    <ClCompile Include="..\ocgcore\libgroup.cpp" />
+    <ClCompile Include="..\ocgcore\ocgapi.cpp" />
+    <ClCompile Include="..\ocgcore\operations.cpp" />
+    <ClCompile Include="..\ocgcore\playerop.cpp" />
+    <ClCompile Include="..\ocgcore\processor.cpp" />
+    <ClCompile Include="..\ocgcore\processor_visit.cpp" />
+    <ClCompile Include="..\ocgcore\scriptlib.cpp" />
+  </ItemGroup>
+</Project>
