@@ -1,0 +1,45 @@
+﻿{
+    "repos":  [
+                  {
+                      "url":  "https://github.com/KillerxG/CCG-Brasil",
+                      "repo_name":  "CCG Brasil",
+                      "repo_path":  "./repositories/ccg-brasil",
+                      "has_core":  true,
+                      "core_path":  "bin",
+                      "data_path":  "",
+                      "script_path":  "script",
+                      "should_update":  true,
+                      "should_read":  true,
+                      "not_git_repo":  false
+                  },
+                  {
+                      "url":  "https://github.com/KillerxG/CCG-Field-Arts",
+                      "repo_name":  "CCG Brasil Field Spells",
+                      "repo_path":  "./expansions/pics/field",
+                      "has_core":  true,
+                      "core_path":  "bin",
+                      "data_path":  "",
+                      "script_path":  "script",
+                      "should_update":  true,
+                      "should_read":  true,
+                      "not_git_repo":  false
+                  },
+                  {
+                      "url":  "https://github.com/KillerxG/CCG-Brasil-Banlists",
+                      "repo_name":  "CCG Brasil Banlists",
+                      "repo_path":  "./repositories/lflistsCCG",
+                      "lflist_path":  ".",
+                      "should_update":  true,
+                      "should_read":  true,
+                      "not_git_repo":  false
+                  },
+                  {
+                      "url":  "https://github.com/KillerxG/CCG-Brasil-Genesys",
+                      "repo_name":  "CCG Brasil Genesys",
+                      "repo_path":  "./repositories/Genesys",
+                      "should_update":  true,
+                      "should_read":  true,
+                      "not_git_repo":  false
+                  }
+              ]
+}
