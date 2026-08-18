@@ -14,6 +14,25 @@
 #include "game_config.h"
 
 namespace ygo {
+static bool IsGenesysListFile(const epro::path_string& path) {
+	static constexpr auto pointcap_key = "$pointcap"sv;
+	static constexpr auto genesys_key = "$genesys"sv;
+	FileStream infile{ path, FileStream::in };
+	if(infile.fail())
+		return false;
+	std::string str;
+	while(std::getline(infile, str)) {
+		if(auto pos = str.find('\r'); pos != std::string::npos)
+			str.erase(pos);
+		auto first = str.find_first_not_of(" \t");
+		if(first == std::string::npos || str[first] == '#')
+			continue;
+		str.erase(0, first);
+		if(str.rfind(pointcap_key.data(), 0, pointcap_key.size()) == 0 || str.rfind(genesys_key.data(), 0, genesys_key.size()) == 0)
+			return true;
+	}
+	return false;
+}
 const CardDataC* DeckManager::GetDummyOrMappedCardData(uint32_t code) const {
 	if(!load_dummies)
 		return gDataManager->GetMappedCardData(code);
@@ -91,12 +110,16 @@ bool DeckManager::LoadLFListFolder(epro::path_stringview _path, epro::wstringvie
 	bool loaded = false;
 	auto lflists = Utils::FindFiles(path, { EPRO_TEXT("conf") });
 	for (const auto& lflist : lflists) {
-		loaded = LoadLFListSingle(path + lflist, prefix) || loaded;
+		auto lflist_path = path + lflist;
+		if(IsGenesysListFile(lflist_path))
+			continue;
+		loaded = LoadLFListSingle(lflist_path, prefix) || loaded;
 	}
 	return loaded;
 }
 bool DeckManager::LoadGenesysListSingle(const epro::path_string& path, epro::wstringview prefix) {
 	static constexpr auto pointcap_key = "$pointcap"sv;
+	static constexpr auto genesys_key = "$genesys"sv;
 	FileStream infile{ path, FileStream::in };
 	if(infile.fail())
 		return false;
@@ -132,6 +155,9 @@ bool DeckManager::LoadGenesysListSingle(const epro::path_string& path, epro::wst
 			genesys.genesys = true;
 			genesys.genesys_point_cap = default_cap;
 			loaded = true;
+			continue;
+		}
+		if(str.rfind(genesys_key.data(), 0, genesys_key.size()) == 0) {
 			continue;
 		}
 		if(str.rfind(pointcap_key.data(), 0, pointcap_key.size()) == 0) {
@@ -186,12 +212,16 @@ bool DeckManager::LoadGenesysFolder(epro::path_stringview _path, epro::wstringvi
 	auto path = Utils::NormalizePath(_path);
 	bool loaded = false;
 	auto genesys_lists = Utils::FindFiles(path, { EPRO_TEXT("conf") });
-	for(const auto& genesys_list : genesys_lists)
-		loaded = LoadGenesysListSingle(path + genesys_list, prefix) || loaded;
+	for(const auto& genesys_list : genesys_lists) {
+		auto genesys_path = path + genesys_list;
+		if(!IsGenesysListFile(genesys_path))
+			continue;
+		loaded = LoadGenesysListSingle(genesys_path, prefix) || loaded;
+	}
 	return loaded;
 }
 void DeckManager::LoadLFList() {
-	LoadGenesysFolder(EPRO_TEXT("./repositories/Genesys/"));
+	LoadGenesysFolder(EPRO_TEXT("./repositories/lflistsCCG/"));
 	LFList nolimit;
 	nolimit.listName = L"N/A"; // N/A
 	nolimit.hash = 0;

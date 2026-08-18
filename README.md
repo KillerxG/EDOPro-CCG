@@ -1,4 +1,4 @@
-﻿# Yu-Gi-Oh! CCG Epsilon - EDOPro Mod
+# Yu-Gi-Oh! CCG Epsilon - EDOPro Mod
 
 Pasta preparada para subir no GitHub e colaborar no desenvolvimento do mod.
 
@@ -22,12 +22,12 @@ Pasta preparada para subir no GitHub e colaborar no desenvolvimento do mod.
 
 ## Repos externos usados pelo mod
 
-O arquivo `mod-files/config/user_configs.json` aponta para estes repos:
+O arquivo `mod-files/config/user_configs.json` aponta para estes repos. As listas Genesys ficam unificadas no repo de banlists, direto em `repositories/lflistsCCG/`, identificadas por `$pointcap` ou `$genesys`. As midias de animacao/holograma/OST ficam em `repositories/ccg-brasil-media/`:
 
 - https://github.com/KillerxG/CCG-Brasil
 - https://github.com/KillerxG/CCG-Field-Arts
 - https://github.com/KillerxG/CCG-Brasil-Banlists
-- https://github.com/KillerxG/CCG-Brasil-Genesys
+- https://github.com/KillerxG/CCG-Brasil-Media
 
 ## Observacao
 

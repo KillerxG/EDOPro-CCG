@@ -60,34 +60,30 @@ bool EnsureMediaFoundationStarted() {
 }
 #endif
 static epro::path_string FindRepositoryAnimationFile(epro::path_stringview animation_type, uint32_t code, std::initializer_list<epro::path_stringview> extensions) {
-	static const auto repo_root = EPRO_TEXT("./repositories/");
-	if(!Utils::DirectoryExists(repo_root))
+	static const auto media_repo = EPRO_TEXT("./repositories/ccg-brasil-media/");
+	if(!Utils::DirectoryExists(media_repo))
 		return {};
-	for(const auto& repo : Utils::FindSubfolders(repo_root, 1, true)) {
-		for(auto extension : extensions) {
-			auto path = epro::format(EPRO_TEXT("{}animations/{}/{}{}"), repo, animation_type, code, extension);
-			if(Utils::FileExists(path))
-				return path;
-			path = epro::format(EPRO_TEXT("{}{}/{}{}"), repo, animation_type, code, extension);
-			if(Utils::FileExists(path))
-				return path;
-		}
+	for(auto extension : extensions) {
+		auto path = epro::format(EPRO_TEXT("{}animations/{}/{}{}"), media_repo, animation_type, code, extension);
+		if(Utils::FileExists(path))
+			return path;
+		path = epro::format(EPRO_TEXT("{}{}/{}{}"), media_repo, animation_type, code, extension);
+		if(Utils::FileExists(path))
+			return path;
 	}
 	return {};
 }
 static epro::path_string FindRepositoryAnimationFrameFile(epro::path_stringview animation_type, uint32_t code, uint32_t index) {
-	static const auto repo_root = EPRO_TEXT("./repositories/");
-	if(!Utils::DirectoryExists(repo_root))
+	static const auto media_repo = EPRO_TEXT("./repositories/ccg-brasil-media/");
+	if(!Utils::DirectoryExists(media_repo))
 		return {};
-	for(const auto& repo : Utils::FindSubfolders(repo_root, 1, true)) {
-		for(auto extension : { EPRO_TEXT(".png"sv), EPRO_TEXT(".jpg"sv) }) {
-			auto path = epro::format(EPRO_TEXT("{}animations/{}/{}/{:04}{}"), repo, animation_type, code, index, extension);
-			if(Utils::FileExists(path))
-				return path;
-			path = epro::format(EPRO_TEXT("{}{}/{}/{:04}{}"), repo, animation_type, code, index, extension);
-			if(Utils::FileExists(path))
-				return path;
-		}
+	for(auto extension : { EPRO_TEXT(".png"sv), EPRO_TEXT(".jpg"sv) }) {
+		auto path = epro::format(EPRO_TEXT("{}animations/{}/{}/{:04}{}"), media_repo, animation_type, code, index, extension);
+		if(Utils::FileExists(path))
+			return path;
+		path = epro::format(EPRO_TEXT("{}{}/{}/{:04}{}"), media_repo, animation_type, code, index, extension);
+		if(Utils::FileExists(path))
+			return path;
 	}
 	return {};
 }

@@ -197,28 +197,26 @@ void SoundManager::RefreshOSTList() {
 	if(!IsUsable())
 		return;
 	OSTList.clear();
-	static const auto repo_root = EPRO_TEXT("./repositories/"sv);
-	if(!Utils::DirectoryExists(repo_root))
+	static const auto media_repo = EPRO_TEXT("./repositories/ccg-brasil-media/"sv);
+	if(!Utils::DirectoryExists(media_repo))
 		return;
 	const auto extensions = mixer->GetSupportedSoundExtensions();
-	for(const auto& repo : Utils::FindSubfolders(repo_root, 1, true)) {
-		const epro::path_string ost_paths[] = {
-			epro::format(EPRO_TEXT("{}ost/"), repo),
-			epro::format(EPRO_TEXT("{}animations/ost/"), repo)
-		};
-		for(const auto& ost_path : ost_paths) {
-			if(!Utils::DirectoryExists(ost_path))
+	const epro::path_string ost_paths[] = {
+		epro::format(EPRO_TEXT("{}ost/"), media_repo),
+		epro::format(EPRO_TEXT("{}animations/ost/"), media_repo)
+	};
+	for(const auto& ost_path : ost_paths) {
+		if(!Utils::DirectoryExists(ost_path))
+			continue;
+		for(auto& file : Utils::FindFiles(ost_path, extensions)) {
+			auto scode = Utils::GetFileName(file);
+			try {
+				uint32_t code = static_cast<uint32_t>(std::stoul(scode));
+				if(code && !OSTList.count(code))
+					OSTList[code] = epro::format("{}/{}", working_dir, Utils::ToUTF8IfNeeded(epro::format(EPRO_TEXT("{}{}"), ost_path, file)));
+			}
+			catch(...) {
 				continue;
-			for(auto& file : Utils::FindFiles(ost_path, extensions)) {
-				auto scode = Utils::GetFileName(file);
-				try {
-					uint32_t code = static_cast<uint32_t>(std::stoul(scode));
-					if(code && !OSTList.count(code))
-						OSTList[code] = epro::format("{}/{}", working_dir, Utils::ToUTF8IfNeeded(epro::format(EPRO_TEXT("{}{}"), ost_path, file)));
-				}
-				catch(...) {
-					continue;
-				}
 			}
 		}
 	}

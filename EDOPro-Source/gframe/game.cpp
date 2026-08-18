@@ -2836,8 +2836,11 @@ void Game::UpdateRepoInfo(const GitRepo* repo, RepoGui* grepo) {
 			RefreshLFLists();
 		}
 		const auto repo_path = Utils::NormalizePath(Utils::ToPathString(repo->repo_path));
-		const auto genesys_path = Utils::NormalizePath(EPRO_TEXT("./repositories/Genesys/"));
-		if(repo_path == genesys_path && gdeckManager->LoadGenesysFolder(genesys_path)) {
+		const auto media_repo = Utils::NormalizePath(EPRO_TEXT("./repositories/ccg-brasil-media/"));
+		if(repo_path == media_repo)
+			gSoundManager->RefreshOSTList();
+		const auto genesys_path = Utils::NormalizePath(EPRO_TEXT("./repositories/lflistsCCG/"));
+		if((repo_path == ccg_lflists || lflist_path == ccg_lflists) && gdeckManager->LoadGenesysFolder(genesys_path, lflist_prefix)) {
 			gdeckManager->RefreshLFList();
 			RefreshLFLists();
 		}
