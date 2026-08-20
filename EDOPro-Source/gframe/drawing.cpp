@@ -1535,6 +1535,11 @@ void Game::DrawBackImage(irr::video::ITexture* texture, bool resized) {
 		driver->draw2DImage(texture, dest_size, bg_size);
 }
 void Game::ShowElement(irr::gui::IGUIElement * win, int autoframe) {
+	if(win == wMainMenu && wModLinksPanel) {
+		wModLinksPanel->setVisible(true);
+		wModLinksPanel->setEnabled(true);
+		wModLinksPanel->getParent()->bringToFront(wModLinksPanel);
+	}
 	FadingUnit fu;
 	fu.fadingSize = win->getRelativePosition();
 	fu.wasEnabled = win->isEnabled();
@@ -1576,6 +1581,10 @@ void Game::ShowElement(irr::gui::IGUIElement * win, int autoframe) {
 	fadingList.push_back(fu);
 }
 void Game::HideElement(irr::gui::IGUIElement * win, bool set_action) {
+	if(win == wMainMenu && wModLinksPanel) {
+		wModLinksPanel->setEnabled(false);
+		wModLinksPanel->setVisible(false);
+	}
 	FadingUnit fu;
 	fu.fadingSize = win->getRelativePosition();
 	fu.wasEnabled = win->isEnabled();

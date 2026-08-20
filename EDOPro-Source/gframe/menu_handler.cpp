@@ -136,6 +136,17 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 		}
 		case irr::gui::EGET_BUTTON_CLICKED: {
 			switch(id) {
+			case BUTTON_MOD_LINK_YOUTUBE: {
+				Utils::SystemOpen(EPRO_TEXT("https://www.youtube.com/@YGOCCGBrasil"), Utils::OPEN_URL);
+				break;
+			}
+			case BUTTON_MOD_LINK_DISCORD: {
+				Utils::SystemOpen(EPRO_TEXT("https://discord.gg/kvxXKtW3Sb"), Utils::OPEN_URL);
+				break;
+			}
+			case BUTTON_MOD_LINK_SITE: {
+				break;
+			}
 			case BUTTON_MODE_EXIT: {
 				mainGame->device->closeDevice();
 				break;

@@ -293,6 +293,28 @@ void Game::Initialize() {
 	defaultStrings.emplace_back(btnModeExit, 1210);
 	offset += 35;
 #undef OFFSET
+	wModLinksPanel = env->addStaticText(L"", Scale(806, 28, 1014, 98), false, false);
+	wModLinksPanel->setDrawBackground(false);
+	wModLinksPanel->setVisible(wMainMenu->isVisible());
+	{
+		auto dimModLink = Scale(0, 0, 68, 68);
+		btnModYoutube = irr::gui::CGUIImageButton::addImageButton(env, dimModLink, wModLinksPanel, BUTTON_MOD_LINK_YOUTUBE);
+		btnModDiscord = irr::gui::CGUIImageButton::addImageButton(env, Scale(70, 0, 138, 68), wModLinksPanel, BUTTON_MOD_LINK_DISCORD);
+		btnModSite = irr::gui::CGUIImageButton::addImageButton(env, Scale(140, 0, 208, 68), wModLinksPanel, BUTTON_MOD_LINK_SITE);
+		btnModYoutube->setDrawBorder(false);
+		btnModDiscord->setDrawBorder(false);
+		btnModSite->setDrawBorder(false);
+		btnModYoutube->setImageSize(dimModLink.getSize());
+		btnModDiscord->setImageSize(dimModLink.getSize());
+		btnModSite->setImageSize(dimModLink.getSize());
+		btnModYoutube->setImage(driver->getTexture(EPRO_TEXT("./textures/mod_youtube.png")));
+		btnModDiscord->setImage(driver->getTexture(EPRO_TEXT("./textures/mod_discord.png")));
+		btnModSite->setImage(driver->getTexture(EPRO_TEXT("./textures/AppIcon.png")));
+	}
+	btnModYoutube->setToolTipText(L"YouTube");
+	btnModDiscord->setToolTipText(L"Discord");
+	btnModSite->setToolTipText(L"Site");
+	btnModSite->setEnabled(false);
 	//lan mode
 	wLanWindow = env->addWindow(Scale(220, 100, 800, 520), false, gDataManager->GetSysString(1200).data());
 	defaultStrings.emplace_back(wLanWindow, 1200);
@@ -3726,6 +3748,8 @@ void Game::OnResize() {
 	}
 	wRoomListPlaceholder->setRelativePosition(irr::core::recti(0, 0, window_size.Width, window_size.Height));
 	wMainMenu->setRelativePosition(ResizeWin(mainMenuLeftX, 200, mainMenuRightX, 450));
+	if(wModLinksPanel)
+		wModLinksPanel->setRelativePosition(ResizeWin(806, 28, 1014, 98));
 	wBtnSettings->setRelativePosition(ResizeWin(0, 610, 30, 640));
 	SetCentered(wCommitsLog);
 	SetCentered(updateWindow, false);

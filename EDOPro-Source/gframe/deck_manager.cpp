@@ -17,6 +17,9 @@ namespace ygo {
 static bool IsGenesysListFile(const epro::path_string& path) {
 	static constexpr auto pointcap_key = "$pointcap"sv;
 	static constexpr auto genesys_key = "$genesys"sv;
+	static constexpr auto genesys2_key = "$genesys2"sv;
+	static constexpr auto linklimit_key = "$linklimit"sv;
+	static constexpr auto pendulumlimit_key = "$pendulumlimit"sv;
 	FileStream infile{ path, FileStream::in };
 	if(infile.fail())
 		return false;
@@ -28,7 +31,7 @@ static bool IsGenesysListFile(const epro::path_string& path) {
 		if(first == std::string::npos || str[first] == '#')
 			continue;
 		str.erase(0, first);
-		if(str.rfind(pointcap_key.data(), 0, pointcap_key.size()) == 0 || str.rfind(genesys_key.data(), 0, genesys_key.size()) == 0)
+		if(str.rfind(pointcap_key.data(), 0, pointcap_key.size()) == 0 || str.rfind(genesys_key.data(), 0, genesys_key.size()) == 0 || str.rfind(genesys2_key.data(), 0, genesys2_key.size()) == 0 || str.rfind(linklimit_key.data(), 0, linklimit_key.size()) == 0 || str.rfind(pendulumlimit_key.data(), 0, pendulumlimit_key.size()) == 0)
 			return true;
 	}
 	return false;
@@ -120,16 +123,25 @@ bool DeckManager::LoadLFListFolder(epro::path_stringview _path, epro::wstringvie
 bool DeckManager::LoadGenesysListSingle(const epro::path_string& path, epro::wstringview prefix) {
 	static constexpr auto pointcap_key = "$pointcap"sv;
 	static constexpr auto genesys_key = "$genesys"sv;
+	static constexpr auto genesys2_key = "$genesys2"sv;
+	static constexpr auto linklimit_key = "$linklimit"sv;
+	static constexpr auto pendulumlimit_key = "$pendulumlimit"sv;
 	FileStream infile{ path, FileStream::in };
 	if(infile.fail())
 		return false;
 	bool loaded = false;
 	uint32_t default_cap = 100;
+	bool default_genesys2 = false;
+	uint32_t default_link_limit = 4;
+	uint32_t default_pendulum_limit = 15;
 	LFList genesys;
 	genesys.hash = 0;
 	genesys.whitelist = false;
 	genesys.genesys = true;
+	genesys.genesys2 = default_genesys2;
 	genesys.genesys_point_cap = default_cap;
+	genesys.genesys_link_limit = default_link_limit;
+	genesys.genesys_pendulum_limit = default_pendulum_limit;
 	auto push_header_hash = [](uint32_t hash, std::string_view value) {
 		for(auto ch : value)
 			hash = (hash ^ static_cast<unsigned char>(ch)) * 16777619u;
@@ -153,11 +165,55 @@ bool DeckManager::LoadGenesysListSingle(const epro::path_string& path, epro::wst
 			genesys.hash = push_header_hash(0x676e7379, { str.data() + 1, str.size() - 1 });
 			genesys.whitelist = false;
 			genesys.genesys = true;
+			genesys.genesys2 = default_genesys2;
 			genesys.genesys_point_cap = default_cap;
+			genesys.genesys_link_limit = default_link_limit;
+			genesys.genesys_pendulum_limit = default_pendulum_limit;
 			loaded = true;
 			continue;
 		}
+		if(str.rfind(genesys2_key.data(), 0, genesys2_key.size()) == 0) {
+			if(genesys.hash) {
+				genesys.genesys2 = true;
+				genesys.hash ^= 0x20327953u;
+			} else {
+				default_genesys2 = true;
+			}
+			continue;
+		}
 		if(str.rfind(genesys_key.data(), 0, genesys_key.size()) == 0) {
+			continue;
+		}
+		if(str.rfind(linklimit_key.data(), 0, linklimit_key.size()) == 0) {
+			auto limit_start = str.find_first_not_of(" \t", linklimit_key.size());
+			if(limit_start != std::string::npos) {
+				try {
+					auto limit = static_cast<uint32_t>(std::stoul(str.substr(limit_start)));
+					if(genesys.hash) {
+						genesys.genesys_link_limit = limit;
+						genesys.hash ^= limit * 2246822519u;
+					} else {
+						default_link_limit = limit;
+					}
+				}
+				catch(...) {}
+			}
+			continue;
+		}
+		if(str.rfind(pendulumlimit_key.data(), 0, pendulumlimit_key.size()) == 0) {
+			auto limit_start = str.find_first_not_of(" \t", pendulumlimit_key.size());
+			if(limit_start != std::string::npos) {
+				try {
+					auto limit = static_cast<uint32_t>(std::stoul(str.substr(limit_start)));
+					if(genesys.hash) {
+						genesys.genesys_pendulum_limit = limit;
+						genesys.hash ^= limit * 3266489917u;
+					} else {
+						default_pendulum_limit = limit;
+					}
+				}
+				catch(...) {}
+			}
 			continue;
 		}
 		if(str.rfind(pointcap_key.data(), 0, pointcap_key.size()) == 0) {
@@ -337,6 +393,8 @@ static DeckError CheckGenesysCards(const Deck::Vector& cards, LFList const* gene
 					  DuelAllowedCards allowedCards,
 					  banlist_content_t& ccount,
 					  uint32_t& point_total,
+					  uint32_t& link_count,
+					  uint32_t& pendulum_count,
 					  std::function<DeckError(const CardDataC*)> additionalCheck = nullptr) {
 	DeckError ret{ DeckError::NONE };
 	for(const auto cit : cards) {
@@ -373,8 +431,22 @@ static DeckError CheckGenesysCards(const Deck::Vector& cards, LFList const* gene
 		default:
 			break;
 		}
-		if(cit->type & (TYPE_LINK | TYPE_PENDULUM))
+		if(!genesys->genesys2 && (cit->type & (TYPE_LINK | TYPE_PENDULUM)))
 			return ret.type = DeckError::FORBTYPE, ret;
+		if(genesys->genesys2) {
+			if((cit->type & TYPE_LINK) && (cit->type & TYPE_MONSTER) && ++link_count > genesys->genesys_link_limit) {
+				ret.type = DeckError::GENESYSLINKLIMIT;
+				ret.count.current = link_count;
+				ret.count.maximum = genesys->genesys_link_limit;
+				return ret;
+			}
+			if((cit->type & TYPE_PENDULUM) && ++pendulum_count > genesys->genesys_pendulum_limit) {
+				ret.type = DeckError::GENESYSPENDULUMLIMIT;
+				ret.count.current = pendulum_count;
+				ret.count.maximum = genesys->genesys_pendulum_limit;
+				return ret;
+			}
+		}
 		DeckError additional = additionalCheck ? additionalCheck(cit) : DeckError{ DeckError::NONE };
 		if(additional.type)
 			return additional;
@@ -392,7 +464,8 @@ static DeckError CheckGenesysCards(const Deck::Vector& cards, LFList const* gene
 }
 DeckError DeckManager::CheckDeckContent(const Deck& deck, LFList const* lflist, DuelAllowedCards allowedCards, uint32_t forbiddentypes, bool rituals_in_extra) {
 	DeckError ret{ DeckError::NONE };
-	if(TypeCount(deck.main, forbiddentypes) > 0 || TypeCount(deck.extra, forbiddentypes) > 0 || TypeCount(deck.side, forbiddentypes) > 0)
+	const auto effective_forbidden_types = (lflist && lflist->genesys) ? 0 : forbiddentypes;
+	if(TypeCount(deck.main, effective_forbidden_types) > 0 || TypeCount(deck.extra, effective_forbidden_types) > 0 || TypeCount(deck.side, effective_forbidden_types) > 0)
 		return ret.type = DeckError::FORBTYPE, ret;
 	if((CountLegends(deck.main, TYPE_MONSTER) + CountLegends(deck.extra, TYPE_MONSTER)) > 1)
 		return ret.type = DeckError::TOOMANYLEGENDS, ret;
@@ -407,7 +480,9 @@ DeckError DeckManager::CheckDeckContent(const Deck& deck, LFList const* lflist, 
 		return ret;
 	if(lflist->genesys) {
 		uint32_t genesys_points = 0;
-		ret = CheckGenesysCards(deck.main, lflist, allowedCards, ccount, genesys_points, [&](const CardDataC* cit)->DeckError {
+		uint32_t genesys_links = 0;
+		uint32_t genesys_pendulums = 0;
+		ret = CheckGenesysCards(deck.main, lflist, allowedCards, ccount, genesys_points, genesys_links, genesys_pendulums, [&](const CardDataC* cit)->DeckError {
 			if((cit->type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ)) || (cit->type & TYPE_LINK && cit->type & TYPE_MONSTER))
 				return { DeckError::EXTRACOUNT };
 			if(cit->isRitualMonster() && rituals_in_extra)
@@ -415,7 +490,7 @@ DeckError DeckManager::CheckDeckContent(const Deck& deck, LFList const* lflist, 
 			return { DeckError::NONE };
 		});
 		if(ret.type) return ret;
-		ret = CheckGenesysCards(deck.extra, lflist, allowedCards, ccount, genesys_points, [&](const CardDataC* cit)->DeckError {
+		ret = CheckGenesysCards(deck.extra, lflist, allowedCards, ccount, genesys_points, genesys_links, genesys_pendulums, [&](const CardDataC* cit)->DeckError {
 			if(cit->isRitualMonster()) {
 				if(!rituals_in_extra)
 					return { DeckError::EXTRACOUNT };
@@ -424,7 +499,7 @@ DeckError DeckManager::CheckDeckContent(const Deck& deck, LFList const* lflist, 
 			return { DeckError::NONE };
 		});
 		if(ret.type) return ret;
-		return CheckGenesysCards(deck.side, lflist, allowedCards, ccount, genesys_points);
+		return CheckGenesysCards(deck.side, lflist, allowedCards, ccount, genesys_points, genesys_links, genesys_pendulums);
 	}
 	ret = CheckCards(deck.main, lflist, allowedCards, ccount, [&](const CardDataC* cit)->DeckError {
 		if ((cit->type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ)) || (cit->type & TYPE_LINK && cit->type & TYPE_MONSTER))
@@ -545,7 +620,7 @@ uint32_t DeckManager::LoadDeck(Deck& deck, const cardlist_type& mainlist, const 
 	auto is_extra_deck_card = [&](auto* card) {
 		if(card->type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ))
 			return true;
-		if(card->type & (cd->type & TYPE_LINK && cd->type & TYPE_MONSTER))
+		if((card->type & TYPE_LINK) && (card->type & TYPE_MONSTER))
 			return true;
 		if(card->isRitualMonster()) {
 			if(rituals_in_extra == RITUAL_LOCATION::DEFAULT) {

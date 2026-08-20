@@ -161,6 +161,7 @@ struct main_menu_panel_elements {
 	int mainMenuRightX;
 	irr::gui::IGUIWindow* wMainMenu;
 	irr::gui::IGUIWindow* wCommitsLog;
+	irr::gui::IGUIStaticText* wModLinksPanel;
 	irr::gui::IGUIContextMenu* mTopMenu;
 	irr::gui::IGUIContextMenu* mRepositoriesInfo;
 	irr::gui::IGUIContextMenu* mAbout;
@@ -179,6 +180,9 @@ struct main_menu_panel_elements {
 	irr::gui::IGUIButton* btnTestMode;
 	irr::gui::IGUIButton* btnDeckEdit;
 	irr::gui::IGUIButton* btnModeExit;
+	irr::gui::CGUIImageButton* btnModYoutube;
+	irr::gui::CGUIImageButton* btnModDiscord;
+	irr::gui::CGUIImageButton* btnModSite;
 	irr::gui::IGUIButton* btnCommitLogExit;
 	irr::gui::IGUIStaticText* stCommitLog;
 	irr::gui::IGUICheckBox* chkCommitLogExpand;

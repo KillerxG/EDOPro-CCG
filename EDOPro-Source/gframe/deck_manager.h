@@ -21,7 +21,10 @@ struct LFList {
 	banlist_content_t content;
 	bool whitelist;
 	bool genesys = false;
+	bool genesys2 = false;
 	uint32_t genesys_point_cap = 100;
+	uint32_t genesys_link_limit = 4;
+	uint32_t genesys_pendulum_limit = 15;
 	auto GetLimitationIterator(const CardDataC* pcard) const {
 		auto flit = content.find(pcard->code);
 		if(flit == content.end() && pcard->alias) {

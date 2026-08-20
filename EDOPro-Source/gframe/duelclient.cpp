@@ -269,6 +269,10 @@ catch(...) { what = def; }
 				TOI(sizes.extra.max, mainGame->ebExtraMax->getText(), 15);
 				TOI(sizes.side.min, mainGame->ebSideMin->getText(), 0);
 				TOI(sizes.side.max, mainGame->ebSideMax->getText(), 15);
+				if(auto lflist = gdeckManager->GetLFList(cscg.info.lflist); lflist && lflist->genesys2) {
+					sizes.extra.min = 0;
+					sizes.extra.max = 15;
+				}
 			}
 #undef TOI
 			if(mainGame->btnRelayMode->isPressed())
@@ -276,6 +280,8 @@ catch(...) { what = def; }
 			if(cscg.info.no_shuffle_deck)
 				cscg.info.duel_flag_low |= DUEL_PSEUDO_SHUFFLE;
 			cscg.info.forbiddentypes = mainGame->forbiddentypes;
+			if(auto lflist = gdeckManager->GetLFList(cscg.info.lflist); lflist && lflist->genesys)
+				cscg.info.forbiddentypes = 0;
 			cscg.info.extra_rules = mainGame->extra_rules;
 			if(mainGame->ebHostNotes->isVisible()) {
 				BufferIO::EncodeUTF8(mainGame->ebHostNotes->getText(), cscg.notes, 200);
@@ -527,9 +533,9 @@ void DuelClient::HandleSTOCPacketLanAsync(const std::vector<uint8_t>& data) {
 			}
 			case DeckError::EXTRACOUNT: {
 				if(curcount > 0)
-					text = epro::sprintf(gDataManager->GetSysString(1418), extramax, curcount);
+					text = epro::sprintf(L"Extra Deck invalid. Minimum: %d, maximum: %d, current: %u.", pkt.count.minimum, extramax, curcount);
 				else
-					text = gDataManager->GetSysString(1420).data();
+					text = L"This card must be in the Extra Deck, or the Extra Deck size/rules are invalid.";
 				break;
 			}
 			case DeckError::SIDECOUNT: {
@@ -537,7 +543,7 @@ void DuelClient::HandleSTOCPacketLanAsync(const std::vector<uint8_t>& data) {
 				break;
 			}
 			case DeckError::FORBTYPE: {
-				text = gDataManager->GetSysString(1421).data();
+				text = L"Forbidden card type for this room/list.";
 				break;
 			}
 			case DeckError::UNOFFICIALCARD: {
@@ -558,6 +564,14 @@ void DuelClient::HandleSTOCPacketLanAsync(const std::vector<uint8_t>& data) {
 			}
 			case DeckError::GENESYSPOINTS: {
 				text = L"Maximum point limit in Genesys mode exceeded.";
+				break;
+			}
+			case DeckError::GENESYSLINKLIMIT: {
+				text = epro::sprintf(L"Maximum Link Monster limit in Genesys 2.0 exceeded. Limit: %u, current: %u.", pkt.count.maximum, pkt.count.current);
+				break;
+			}
+			case DeckError::GENESYSPENDULUMLIMIT: {
+				text = epro::sprintf(L"Maximum Pendulum Monster limit in Genesys 2.0 exceeded. Limit: %u, current: %u.", pkt.count.maximum, pkt.count.current);
 				break;
 			}
 			default: {
